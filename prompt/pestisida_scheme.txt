@@ -1,0 +1,45 @@
+// models/pestisida.model.ts
+import mongoose, { Model, Schema } from 'mongoose';
+import { IPestisida } from '@/types/pestisida';
+
+const pestisidaSchema = new Schema<IPestisida>(
+  {
+    name: {
+      type: String,
+      required: [true, 'Nama pestisida wajib diisi'],
+      trim: true,
+    },
+    brand: {
+      type: String,
+      required: [true, 'Merek pestisida wajib diisi'],
+      trim: true,
+    },
+    price: {
+      type: Number,
+      required: [true, 'Harga wajib diisi'],
+      min: [0, 'Harga tidak boleh negatif'],
+    },
+  },
+  { timestamps: true }
+);
+
+const Pestisida: Model<IPestisida> =
+  (mongoose.models.Pestisida as Model<IPestisida>) || mongoose.model<IPestisida>('Pestisida', pestisidaSchema);
+
+export default Pestisida;
+
+// types/pestisida.d.ts
+import { Document } from 'mongoose';
+
+export interface IPestisida extends Document {
+  name: string;      
+  brand: string;    
+  price: number;     
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// pages/api/pestisida/index.ts
+// pages/api/pestisida/[id].ts
+
+Buatkan kode untuk api benih dengan fitur CRUD, gunakan cors, lalu tambahkan komentar direktori file

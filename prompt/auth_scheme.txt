@@ -1,0 +1,243 @@
+Pelajari auth ini:
+
+// models/user.model.ts
+import mongoose, { Model, Schema } from 'mongoose';
+import bcrypt from 'bcrypt';
+import { IUser } from '@/types/user';
+
+const SALT_ROUNDS = 10;
+
+const userSchema = new Schema<IUser>(
+  {
+    phone: {
+      type: String,
+      required: [true, 'Nomor telepon wajib diisi'],
+      unique: true,
+      trim: true,
+      minlength: 6,
+      maxlength: 20,
+      match: [/^\+?\d{6,20}$/, 'Nomor telepon tidak valid'],
+    },
+    password: {
+      type: String,
+      required: [true, 'Password wajib diisi'],
+      minlength: 6,
+      select: false,
+    },
+    fullName: {
+      type: String,
+      required: [true, 'Nama lengkap wajib diisi'],
+      trim: true,
+    },
+    address: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    role: {
+      type: String,
+      enum: ['Koperasi', 'Petani'],
+      default: 'Petani',
+      required: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+userSchema.pre<IUser>('save', async function (next) {
+  if (!this.isModified('password')) return next();
+  try {
+    const salt = await bcrypt.genSalt(SALT_ROUNDS);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (err) {
+    next(err as any);
+  }
+});
+
+userSchema.methods.comparePassword = async function (candidate: string) {
+  return bcrypt.compare(candidate, this.password);
+};
+
+const User: Model<IUser> =
+  (mongoose.models.User as Model<IUser>) || mongoose.model<IUser>('User', userSchema);
+
+export default User;
+
+// types/user.d.ts
+import { Document } from 'mongoose';
+
+export type RoleType = 'Koperasi' | 'Petani';
+
+export interface IUser extends Document {
+  phone: string;
+  password: string;
+  fullName: string;
+  address?: string;
+  role: RoleType;
+  createdAt: Date;
+  updatedAt: Date;
+
+  comparePassword(candidate: string): Promise<boolean>;
+}
+
+// pages/api/auth/register.ts
+import { NextApiRequest, NextApiResponse } from 'next';
+import connectionToDatabase from '@/lib/mongodb';
+import User from '@/models/user.model';
+import cors from '@/middlware/cors';
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  await cors(req, res);
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    await connectionToDatabase();
+
+    const { phone, password, fullName, address, role } = req.body;
+
+    // Validasi input
+    if (!phone || !password || !fullName) {
+      return res.status(400).json({ 
+        error: 'Nomor telepon, password, dan nama lengkap wajib diisi' 
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ 
+        error: 'Password minimal 6 karakter' 
+      });
+    }
+
+    // Cek apakah user sudah ada
+    const existingUser = await User.findOne({ phone });
+    if (existingUser) {
+      return res.status(400).json({ 
+        error: 'Nomor telepon sudah terdaftar' 
+      });
+    }
+
+    // Buat user baru
+    const user = new User({
+      phone,
+      password,
+      fullName,
+      address: address || '',
+      role: role || 'Petani'
+    });
+
+    await user.save();
+
+    // Return user tanpa password
+    const userResponse = {
+      id: user._id,
+      phone: user.phone,
+      fullName: user.fullName,
+      address: user.address,
+      role: user.role,
+      createdAt: user.createdAt
+    };
+
+    res.status(201).json({
+      message: 'Registrasi berhasil',
+      user: userResponse
+    });
+  } catch (error: any) {
+    console.error('Registration error:', error);
+    
+    if (error.code === 11000) {
+      return res.status(400).json({ 
+        error: 'Nomor telepon sudah terdaftar' 
+      });
+    }
+    
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ 
+        error: Object.values(error.errors).map((err: any) => err.message).join(', ')
+      });
+    }
+
+    res.status(500).json({ error: 'Terjadi kesalahan server' });
+  }
+}
+
+// pages/api/auth/login.ts
+import { NextApiRequest, NextApiResponse } from 'next';
+import jwt from 'jsonwebtoken';
+import connectionToDatabase from '@/lib/mongodb';
+import User from '@/models/user.model';
+import cors from '@/middlware/cors';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  await cors(req, res);
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    await connectionToDatabase();
+
+    const { phone, password } = req.body;
+
+    // Validasi input
+    if (!phone || !password) {
+      return res.status(400).json({ 
+        error: 'Nomor telepon dan password wajib diisi' 
+      });
+    }
+
+    // Cari user dan include password
+    const user = await User.findOne({ phone }).select('+password');
+    if (!user) {
+      return res.status(401).json({ 
+        error: 'Nomor telepon atau password salah' 
+      });
+    }
+
+    // Verifikasi password
+    const isPasswordValid = await user.comparePassword(password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ 
+        error: 'Nomor telepon atau password salah' 
+      });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { 
+        userId: user._id, 
+        phone: user.phone, 
+        role: user.role 
+      },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    // Return user data dan token
+    const userResponse = {
+      id: user._id,
+      phone: user.phone,
+      fullName: user.fullName,
+      address: user.address,
+      role: user.role,
+      createdAt: user.createdAt
+    };
+
+    res.status(200).json({
+      message: 'Login berhasil',
+      token,
+      user: userResponse
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Terjadi kesalahan server' });
+  }
+}

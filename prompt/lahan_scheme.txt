@@ -1,0 +1,217 @@
+// models/lahan.model.ts
+import mongoose, { Model, Schema } from 'mongoose';
+import { ILahan } from '@/types/lahan';
+
+// Definisi seedTypeSchema
+const seedTypeSchema = new Schema({
+  name: {
+    type: String,
+    required: [true, 'Nama benih wajib diisi'],
+    trim: true,
+  },
+  variety: {
+    type: String,
+    required: [true, 'Varietas wajib diisi'],
+    trim: true,
+  },
+  price: {
+    type: Number,
+    required: [true, 'Harga wajib diisi'],
+    min: [0, 'Harga tidak boleh negatif'],
+  },
+});
+
+// Definisi semaiSchema tanpa userId
+const semaiSchema = new Schema({
+  seedType: {
+    type: seedTypeSchema,
+    required: true,
+  },
+  seedAmount: {
+    type: Number,
+    required: [true, 'Jumlah benih wajib diisi'],
+    min: [1, 'Jumlah benih minimal 1'],
+  },
+  seedUnit: {
+    type: String,
+    required: [true, 'Satuan benih wajib diisi'],
+    trim: true,
+  },
+  startDate: {
+    type: Date,
+    required: [true, 'Tanggal mulai semai wajib diisi'],
+  },
+  endDate: {
+    type: Date,
+    required: [true, 'Tanggal selesai semai wajib diisi'],
+  },
+  notes: {
+    type: String,
+    trim: true,
+    default: '',
+  },
+});
+
+// Definisi pupukSchema
+const pupukSchema = new Schema({
+  name: {
+    type: String,
+    required: [true, 'Nama pupuk wajib diisi'],
+    trim: true,
+  },
+  brand: {
+    type: String,
+    required: [true, 'Merek pupuk wajib diisi'],
+    trim: true,
+  },
+  price: {
+    type: Number,
+    required: [true, 'Harga wajib diisi'],
+    min: [0, 'Harga tidak boleh negatif'],
+  },
+});
+
+// Definisi pestisidaSchema
+const pestisidaSchema = new Schema({
+  name: {
+    type: String,
+    required: [true, 'Nama pestisida wajib diisi'],
+    trim: true,
+  },
+  brand: {
+    type: String,
+    required: [true, 'Merek pestisida wajib diisi'],
+    trim: true,
+  },
+  price: {
+    type: Number,
+    required: [true, 'Harga wajib diisi'],
+    min: [0, 'Harga tidak boleh negatif'],
+  },
+});
+
+// Definisi lahanSchema
+const lahanSchema = new Schema<ILahan>(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: [true, 'User ID wajib diisi'],
+    },
+    name: {
+      type: String,
+      required: [true, 'Nama lahan wajib diisi'],
+      trim: true,
+    },
+    landArea: {
+      type: Number,
+      required: [true, 'Luas tanah wajib diisi'],
+      min: [0, 'Luas tanah tidak boleh negatif'],
+    },
+    soilType: {
+      type: String,
+      required: [true, 'Jenis tanah wajib diisi'],
+      trim: true,
+    },
+    hamlet: {
+      type: String,
+      required: [true, 'Dusun wajib diisi'],
+      trim: true,
+    },
+    village: {
+      type: String,
+      required: [true, 'Desa wajib diisi'],
+      trim: true,
+    },
+    district: {
+      type: String,
+      required: [true, 'Kecamatan wajib diisi'],
+      trim: true,
+    },
+
+    semai: [semaiSchema],
+    pupuk: [pupukSchema],
+    pestisida: [pestisidaSchema],
+  },
+  { timestamps: true }
+);
+
+const Lahan: Model<ILahan> =
+  (mongoose.models.Lahan as Model<ILahan>) || mongoose.model<ILahan>('Lahan', lahanSchema);
+
+export default Lahan;
+
+// types/lahan.d.ts
+import { ObjectId } from 'mongoose';
+
+// Tipe untuk SeedType (jenis benih)
+export interface ISeedType {
+  name: string;
+  variety: string;
+  price: number;
+}
+
+// Tipe untuk Semai tanpa userId
+export interface ISemai {
+  seedType: ISeedType;
+  seedAmount: number;
+  seedUnit: string;
+  startDate: Date;
+  endDate: Date;
+  notes?: string;
+}
+
+// Tipe untuk Pupuk
+export interface IPupuk {
+  name: string;
+  brand: string;
+  price: number;
+}
+
+// Tipe untuk Pestisida
+export interface IPestisida {
+  name: string;
+  brand: string;
+  price: number;
+}
+
+// Tipe untuk Lahan
+export interface ILahan {
+  userId: ObjectId | string;
+  name: string;
+  landArea: number;
+  soilType: string;
+  hamlet: string;
+  village: string;
+  district: string;
+
+  semai: ISemai[];
+  pupuk: IPupuk[];
+  pestisida: IPestisida[];
+
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+// pages/api/lahan/index.ts
+// pages/api/lahan/[id]/index.ts
+
+// pages/api/lahan/[id]/semai.ts
+// pages/api/lahan/[id]/[semaiId].ts
+
+// pages/api/lahan/[id]/pupuk.ts
+// pages/api/lahan/[id]/[pupukId].ts
+
+// pages/api/lahan/[id]/pestisida.ts
+// pages/api/lahan/[id]/[pestisidaId].ts
+
+Buatkan kode REST API dengan fitur CRUD
+index.ts dan [id]/index.ts hanya crud field:
+  name: string;
+  landArea: number;
+  soilType: string;
+  hamlet: string;
+  village: string;
+  district: string;
+
+  Jangan lupakan Bearer Token

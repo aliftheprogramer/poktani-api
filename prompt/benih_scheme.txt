@@ -1,0 +1,46 @@
+// models/benih.model.ts
+import mongoose, { Model, Schema } from 'mongoose';
+import { IBenih } from '@/types/benih';
+
+const benihSchema = new Schema<IBenih>(
+  {
+    name: {
+      type: String,
+      required: [true, 'Nama benih wajib diisi'],
+      trim: true,
+    },
+    variety: {
+      type: String,
+      required: [true, 'Varietas wajib diisi'],
+      trim: true,
+    },
+    price: {
+      type: Number,
+      required: [true, 'Harga wajib diisi'],
+      min: [0, 'Harga tidak boleh negatif'],
+    },
+  },
+  { timestamps: true }
+);
+
+const Benih: Model<IBenih> =
+  (mongoose.models.Benih as Model<IBenih>) || mongoose.model<IBenih>('Benih', benihSchema);
+
+export default Benih;
+
+// types/benih.d.ts
+import { Document } from 'mongoose';
+
+export interface IBenih extends Document {
+  name: string;      
+  variety: string;   
+  price: number;     
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// pages/api/benih/index.ts
+
+// pages/api/benih/[id].ts
+
+Buatkan kode untuk api benih dengan fitur CRUD, gunakan cors, lalu tambahkan komentar direktori file

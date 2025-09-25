@@ -1,0 +1,10 @@
+// tsconfig.seeder.json
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "noEmit": false
+  },
+  "include": ["seed"]
+}

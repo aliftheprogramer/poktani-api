@@ -1,0 +1,91 @@
+import mongoose, { Model, Schema } from 'mongoose';
+import { ISemai, ISeedType } from '@/types/semai';
+
+const seedTypeSchema = new Schema<ISeedType>({
+  name: {
+    type: String,
+    required: [true, 'Nama benih wajib diisi'],
+    trim: true,
+  },
+  variety: {
+    type: String,
+    required: [true, 'Varietas wajib diisi'],
+    trim: true,
+  },
+  price: {
+    type: Number,
+    required: [true, 'Harga wajib diisi'],
+    min: [0, 'Harga tidak boleh negatif'],
+  },
+});
+
+const semaiSchema = new Schema<ISemai>(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: [true, 'User ID wajib diisi'],
+    },
+    seedType: {
+      type: seedTypeSchema,
+      required: true,
+    },
+    seedAmount: {
+      type: Number,
+      required: [true, 'Jumlah benih wajib diisi'],
+      min: [1, 'Jumlah benih minimal 1'],
+    },
+    seedUnit: {
+      type: String,
+      required: [true, 'Satuan benih wajib diisi'],
+      trim: true,
+    },
+    startDate: {
+      type: Date,
+      required: [true, 'Tanggal mulai semai wajib diisi'],
+    },
+    endDate: {
+      type: Date,
+      required: [true, 'Tanggal selesai semai wajib diisi'],
+    },
+    notes: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+const Semai: Model<ISemai> =
+  mongoose.models.Semai || mongoose.model<ISemai>('Semai', semaiSchema);
+
+export default Semai;
+
+import { Document, Types } from 'mongoose';
+
+export interface ISeedType {
+  name: string;
+  variety: string;
+  price: number;
+}
+
+export interface ISemai extends Document {
+  userId: Types.ObjectId;
+  seedType: ISeedType;       // Objek sesuai schema mongoose
+  seedAmount: number;       
+  seedUnit: string;         
+  startDate: Date;        
+  endDate: Date;             
+  notes?: string;         
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// pages/api/semai/[id].ts
+
+// pages/api/semai/index.ts
+
+Buatkan REST API dengan fitur CRUD, pakai Bearer Token
