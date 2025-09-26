@@ -13,7 +13,6 @@ const panenSchema = new Schema<IPanen>(
     harvestDate: { type: Date, required: true },
     saleType: {
       type: String,
-      required: true,
       trim: true,
       enum: ["Per Satuan", "Borongan"],
     },
@@ -44,7 +43,7 @@ const panenSchema = new Schema<IPanen>(
     },
     totalRevenue: {
       type: Number,
-      required: true,
+      default: 0,
       min: 0,
     },
     soldTo: {
@@ -61,6 +60,13 @@ const panenSchema = new Schema<IPanen>(
   },
   { timestamps: true }
 );
+
+// In dev, ensure schema updates are picked by removing cached model
+if (mongoose.models.Panen) {
+  try {
+    mongoose.deleteModel("Panen");
+  } catch {}
+}
 
 const Panen: Model<IPanen> =
   (mongoose.models.Panen as Model<IPanen>) ||
