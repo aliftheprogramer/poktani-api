@@ -1,8 +1,13 @@
 // seed/seedProduk.ts
+import dotenv from "dotenv";
 import mongoose from "mongoose";
 import Benih from "../models/benih.model";
 import Pupuk from "../models/pupuk.model";
 import Pestisida from "../models/pestisida.model";
+
+// Load env from .env first, then override with .env.local if present
+dotenv.config();
+dotenv.config({ path: ".env.local", override: true });
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
@@ -243,9 +248,26 @@ async function main() {
     await mongoose.connect(MONGODB_URI as string);
     console.log("🌱 Terhubung ke database untuk seeding produk...");
 
-    await seedBenih();
-    await seedPupuk();
-    await seedPestisida();
+    // Parse CLI arg: --only=benih|pupuk|pestisida or comma-separated
+    const onlyArg = process.argv.find((a) => a.startsWith("--only="));
+    const only = onlyArg
+      ? onlyArg
+          .slice("--only=".length)
+          .split(",")
+          .map((s) => s.trim().toLowerCase())
+      : [];
+
+    const runAll = only.length === 0;
+
+    if (runAll || only.includes("benih")) {
+      await seedBenih();
+    }
+    if (runAll || only.includes("pupuk")) {
+      await seedPupuk();
+    }
+    if (runAll || only.includes("pestisida")) {
+      await seedPestisida();
+    }
 
     console.log("🎉 Seeding selesai.");
   } catch (err) {

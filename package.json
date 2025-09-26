@@ -9,9 +9,9 @@
     "lint": "next lint",
     "db:seed:admin": "ts-node --project tsconfig.seeder.json -r dotenv/config seed/seedAdmin.ts",
     "db:seed:produk": "ts-node --project tsconfig.seeder.json -r dotenv/config seed/seedProduk.ts",
-    "db:seed:benih": "ts-node --project tsconfig.seeder.json -r dotenv/config -e \"import(\\\"./seed/seedProduk\\\")\"",
-    "db:seed:pupuk": "ts-node --project tsconfig.seeder.json -r dotenv/config -e \"import(\\\"./seed/seedProduk\\\")\"",
-    "db:seed:pestisida": "ts-node --project tsconfig.seeder.json -r dotenv/config -e \"import(\\\"./seed/seedProduk\\\")\""
+    "db:seed:benih": "npm run db:seed:produk -- --only=benih",
+    "db:seed:pupuk": "npm run db:seed:produk -- --only=pupuk",
+    "db:seed:pestisida": "npm run db:seed:produk -- --only=pestisida"
   },
   "dependencies": {
     "@iconify/react": "^6.0.0",
