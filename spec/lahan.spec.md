@@ -19,6 +19,9 @@ Membuat data lahan baru.
     - `hamlet` (string, required): Dusun.
     - `village` (string, required): Desa.
     - `district` (string, required): Kecamatan.
+    - `latitude` (number, required): Koordinat latitude lahan.
+    - `longitude` (number, required): Koordinat longitude lahan.
+    - `gambar` (string, optional): URL gambar lahan.
 - **Contoh Respons (201 Created):**
 ```json
 {
@@ -29,6 +32,9 @@ Membuat data lahan baru.
     "hamlet": "Dusun A",
     "village": "Desa B",
     "district": "Kecamatan C",
+    "latitude": -7.2575,
+    "longitude": 112.7521,
+    "gambar": "https://example.com/images/lahan1.jpg",
     "plantingHistory": [],
     "_id": "68a966a6d813d4caa5db0686",
     "createdAt": "2025-08-23T08:00:00.000Z",
@@ -97,6 +103,7 @@ Mendapatkan detail lahan berdasarkan ID.
 
 
 ```JSON
+```JSON
 {
     "userId": "68a966a6d813d4caa5db0687",
     "name": "Sawah Cepat Panen",
@@ -105,9 +112,13 @@ Mendapatkan detail lahan berdasarkan ID.
     "hamlet": "Dusun A",
     "village": "Desa B",
     "district": "Kecamatan C",
+    "latitude": -7.2575,
+    "longitude": 112.7521,
+    "gambar": "https://example.com/images/lahan1.jpg",
     "plantingHistory": ["68a966a6d813d4caa5db0688"],
     "_id": "68a966a6d813d4caa5db0686"
 }
+```
 
 ```
 
@@ -135,7 +146,19 @@ Memperbarui data lahan berdasarkan ID.
 
     -   `landArea` (number): Luas lahan.
 
+    -   `soilType` (string): Jenis tanah.
+
+    -   `hamlet` (string): Dusun.
+
     -   `village` (string): Desa.
+
+    -   `district` (string): Kecamatan.
+
+    -   `latitude` (number): Koordinat latitude lahan.
+
+    -   `longitude` (number): Koordinat longitude lahan.
+
+    -   `gambar` (string): URL gambar lahan.
 
 -   **Contoh Respons (200 OK):**
 

@@ -33,6 +33,7 @@ const kegiatanTanamSchema = new Schema<IKegiatanTanam>(
       default: "Active",
     },
     notes: { type: String, trim: true },
+    gambar: { type: String, required: false },
     // Tambahan untuk denormalisasi
     totalCost: { type: Number, default: 0 },
     totalRevenue: { type: Number, default: 0 },

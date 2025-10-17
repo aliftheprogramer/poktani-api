@@ -11,6 +11,9 @@ const lahanSchema = new Schema<ILahan>(
     hamlet: { type: String, required: true },
     village: { type: String, required: true },
     district: { type: String, required: true },
+    latitude: { type: Number, required: true },
+    longitude: { type: Number, required: true },
+    gambar: { type: String, required: false },
     plantingHistory: [
       {
         type: Schema.Types.ObjectId,

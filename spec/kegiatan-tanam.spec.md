@@ -18,6 +18,7 @@ Membuat catatan kegiatan tanam baru.
     - `plantingDate` (Date, required): Tanggal penanaman.
     - `plantingAmount` (number, required): Jumlah bibit yang ditanam.
     - `notes` (string): Catatan tambahan.
+    - `gambar` (string, optional): URL gambar kegiatan tanam.
     - `source` (object, required):
         - `type` (string, required, enum: "FROM_NURSERY", "DIRECT_PURCHASE")
         - `nurseryId` (ObjectId, required jika type="FROM_NURSERY"): ID persemaian.
@@ -37,6 +38,7 @@ Membuat catatan kegiatan tanam baru.
     },
     "plantingDate": "2025-09-18T00:00:00.000Z",
     "plantingAmount": 400,
+    "gambar": "https://example.com/images/tanam-cabai.jpg",
     "totalCost": 50000,
     "totalRevenue": 0,
     "status": "Active"
@@ -130,6 +132,8 @@ Memperbarui data kegiatan tanam.
     -   `status` (string): Mengubah status kegiatan tanam (misal: "Completed").
 
     -   `notes` (string): Mengubah catatan.
+
+    -   `gambar` (string): URL gambar kegiatan tanam.
 
 -   **Contoh Respons (200 OK):**
 

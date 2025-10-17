@@ -17,6 +17,7 @@ export interface IKegiatanTanam extends Document {
   plantingAmount: number;
   status: "Active" | "Harvested" | "Completed" | "Failed";
   notes?: string;
+  gambar?: string;
   totalCost: number;
   totalRevenue: number;
 }

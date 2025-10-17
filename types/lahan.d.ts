@@ -9,5 +9,8 @@ export interface ILahan extends Document {
   hamlet: string;
   village: string;
   district: string;
+  latitude: number;
+  longitude: number;
+  gambar?: string;
   plantingHistory: Types.ObjectId[];
 }
